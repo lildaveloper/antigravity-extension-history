@@ -3,7 +3,7 @@
   "displayName": "Google Antigravity",
   "description": "Bring Google's agent-first development platform to Visual Studio Code.",
   "icon": "img/logo.png",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "publisher": "google",
   "license": "SEE LICENSE IN LICENSE.txt",
   "engines": {
@@ -116,6 +116,16 @@
         "category": "Antigravity"
       },
       {
+        "command": "antigravity.inlineDiff.acceptFocusedHunk",
+        "title": "Accept Focused Change",
+        "category": "Antigravity"
+      },
+      {
+        "command": "antigravity.inlineDiff.rejectFocusedHunk",
+        "title": "Reject Focused Change",
+        "category": "Antigravity"
+      },
+      {
         "command": "antigravity.sideBySide.acceptAll",
         "title": "Accept All Changes",
         "icon": "$(check)",
@@ -138,6 +148,11 @@
         "category": "Antigravity"
       },
       {
+        "command": "antigravity.openTelemetrySettings",
+        "title": "Manage Data Sharing & Telemetry",
+        "category": "Antigravity"
+      },
+      {
         "command": "antigravity.feedback",
         "title": "Provide Feedback",
         "icon": "$(feedback)",
@@ -152,6 +167,14 @@
         },
         {
           "command": "antigravity.inlineDiff.rejectAll",
+          "when": "antigravity.hasActiveDiff"
+        },
+        {
+          "command": "antigravity.inlineDiff.acceptFocusedHunk",
+          "when": "antigravity.hasActiveDiff"
+        },
+        {
+          "command": "antigravity.inlineDiff.rejectFocusedHunk",
           "when": "antigravity.hasActiveDiff"
         },
         {
@@ -216,7 +239,7 @@
         "command": "antigravity.toggleChatFocus",
         "key": "ctrl+l",
         "mac": "cmd+l",
-        "when": "antigravity.chatFocused",
+        "when": "antigravity.chatFocused && !editorTextFocus && !terminalFocus",
         "args": "close"
       },
       {
@@ -228,13 +251,37 @@
         "command": "antigravity.dynamic.acceptAgentStep",
         "key": "alt+enter",
         "mac": "alt+enter",
-        "when": "antigravity.stepPending"
+        "when": "!editorTextFocus && antigravity.stepPending"
       },
       {
         "command": "antigravity.dynamic.rejectAgentStep",
         "key": "alt+shift+enter",
         "mac": "alt+shift+enter",
-        "when": "antigravity.stepPending"
+        "when": "!editorTextFocus && antigravity.stepPending"
+      },
+      {
+        "command": "antigravity.inlineDiff.acceptFocusedHunk",
+        "key": "alt+enter",
+        "mac": "alt+enter",
+        "when": "editorTextFocus && !editorReadonly && antigravity.hasActiveDiff && !findWidgetVisible"
+      },
+      {
+        "command": "antigravity.inlineDiff.rejectFocusedHunk",
+        "key": "alt+shift+enter",
+        "mac": "alt+shift+enter",
+        "when": "editorTextFocus && !editorReadonly && antigravity.hasActiveDiff && !findWidgetVisible"
+      },
+      {
+        "command": "antigravity.sideBySide.acceptAll",
+        "key": "alt+enter",
+        "mac": "alt+enter",
+        "when": "editorTextFocus && antigravity.sideBySideReviewPending && !antigravity.hasActiveDiff && !findWidgetVisible"
+      },
+      {
+        "command": "antigravity.sideBySide.rejectAll",
+        "key": "alt+shift+enter",
+        "mac": "alt+shift+enter",
+        "when": "editorTextFocus && antigravity.sideBySideReviewPending && !antigravity.hasActiveDiff && !findWidgetVisible"
       },
       {
         "command": "antigravity.dynamic.interruptAgent",
@@ -273,10 +320,20 @@
           "default": 30000,
           "description": "Timeout in milliseconds to wait for the Antigravity backend language server to start up and pass health checks."
         },
+        "antigravity.autoRecover": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically restart the Antigravity backend (`agy --hub`) when it stops unexpectedly mid-session, with bounded exponential backoff (at most 3 restarts per 10 minutes). When off, or once the restart budget is exhausted, the chat view shows an error with a manual retry button."
+        },
+        "antigravity.heartbeatIntervalMs": {
+          "type": "number",
+          "default": 15000,
+          "description": "Interval in milliseconds between post-startup `/healthz` liveness probes of the Antigravity backend while the window is focused (4x longer when unfocused). Three consecutive missed probes mark the backend as hung; with `antigravity.autoRecover` on it is then restarted. Set to 0 to disable the heartbeat."
+        },
         "antigravity.enableTelemetry": {
           "type": "boolean",
           "default": true,
-          "description": "Enable sending client-side product telemetry and usage metrics to Google Cloudmill to help improve Antigravity."
+          "markdownDeprecationMessage": "Telemetry is now controlled by the **Enable Telemetry** switch in Antigravity Settings → Account ([open](command:antigravity.openTelemetrySettings)). This setting no longer has any effect beyond keeping extension usage metrics off if set to `false`."
         },
         "antigravity.enableInlineDiff": {
           "type": "boolean",
@@ -321,9 +378,9 @@
     "BUILD_DEPOT_PATH": "//depot/google3",
     "BUILD_DIRECTORY": "/google/src/cloud/buildrabbit-username/buildrabbit-client/google3",
     "BUILD_USERNAME": "kokoro-dedicated",
-    "BUILD_BLAZE_RELEASE": "release blaze-2026.10.01-2 (mainline @991109274)",
-    "BUILD_EMBED_LABEL": "antigravity_vscode_extension_1.8.0_RC00",
-    "BUILD_HOSTNAME": "lor5.prod.google.com",
+    "BUILD_BLAZE_RELEASE": "release blaze-2026.10.06-3 (mainline @993733428)",
+    "BUILD_EMBED_LABEL": "antigravity_vscode_extension_1.9.0_RC00",
+    "BUILD_HOSTNAME": "lgbcf19.prod.google.com",
     "VERIFIABLE": "0",
     "WORKSPACE_STATUS_COMMAND_ARGUMENT": "<precomputed>"
   }

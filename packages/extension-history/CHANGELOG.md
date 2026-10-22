@@ -12,6 +12,99 @@ VS Code
 
 ---
 
+## [v1.9.0] - 2026-10-21
+
+### Focused hunk review shortcuts, self-healing backend recovery, and liveness heartbeats
+Review inline diff hunks directly from your keyboard with cursor-focused accept and reject shortcuts, while automatic backend recovery and health heartbeats keep your language server self-healing. This release also introduces sleep-drift detection, centralized telemetry governance, and 150+ interactive elicitation and tool schemas.
+
+### Highlights
+- **Cursor-Focused Diff Hunk Keyboard Navigation (`alt+enter` / `alt+shift+enter`)**: Streamlined keyboard-driven code review workflows with granular, cursor-targeted diff hunk resolution:
+  - **Focused Hunk Targeting (`acceptFocusedHunk` / `rejectFocusedHunk`)**: Added dedicated commands (`antigravity.inlineDiff.acceptFocusedHunk` and `antigravity.inlineDiff.rejectFocusedHunk`) that dynamically resolve only the single diff hunk containing the active editor cursor line (`selection.active.line`), falling back to the first pending hunk if the cursor is outside active diff zones.
+  - **Inline Diff Shortcuts**: Bound `alt+enter` to accept the focused hunk and `alt+shift+enter` to reject the focused hunk whenever an inline diff review is active (`editorTextFocus && !editorReadonly && antigravity.hasActiveDiff && !findWidgetVisible`).
+  - **Side-by-Side Review Parity**: Added matching `antigravity.sideBySide.acceptAll` (`alt+enter`) and `antigravity.sideBySide.rejectAll` (`alt+shift+enter`) bindings when reviewing full-file side-by-side diffs.
+  - **Collision Prevention**: Scoped `antigravity.toggleChatFocus` (`!editorTextFocus && !terminalFocus`) and `antigravity.dynamic.acceptAgentStep` (`!editorTextFocus`) to prevent hotkey conflicts while typing in the active editor buffer.
+
+- **Automatic Backend Recovery with Bounded Backoff (`antigravity.autoRecover`)**: Introduced self-healing process resilience for the local Antigravity daemon (`agy --hub`):
+  - **Automated Restarts**: When enabled, the extension automatically restarts the backend language server if it crashes or terminates unexpectedly mid-session without requiring a manual window reload.
+  - **Bounded Exponential Backoff**: Restarts use escalating backoff intervals (`1000ms`, `3000ms`, `9000ms`) with ±20% randomized jitter, enforcing a maximum budget of 3 recovery attempts within any 10-minute sliding window (`AUTO_RECOVER_WINDOW_MS = 600,000ms`).
+  - **Graceful Failure State**: If the restart budget is exhausted, the server manager stops recovery attempts, logs `SERVER_AUTO_RECOVERY_FAILED` telemetry, and surfaces an error card in the chat view with a manual retry action. Can be globally bypassed with the `ANTIGRAVITY_DISABLE_AUTO_RECOVER=1` environment variable.
+
+- **Liveness Probing & System Sleep-Drift Safeguards (`antigravity.heartbeatIntervalMs`)**: Added continuous health monitoring to detect hung daemon instances and prevent false alarms across system sleep cycles:
+  - **Active `/healthz` Heartbeat**: Probes the backend health endpoint on a configurable interval (`default: 15000ms`, `min: 1000ms`). Inactivity is automatically throttled by 4x (`60000ms`) when the VS Code window loses focus.
+  - **Hang Detection**: Tripping 3 consecutive missed probes (`HEARTBEAT_MISS_THRESHOLD = 3`) marks the backend as hung, logging `SERVER_HANG` and automatically triggering recovery when `autoRecover` is enabled.
+  - **Monotonic Sleep-Drift Detection**: Detects clock discrepancies between wall time and monotonic process uptime (`SUSPEND_DRIFT_THRESHOLD_MS = 15000ms`). Probes missed during macOS or Linux sleep/suspend transitions are recognized as sleep events and ignored rather than treated as backend failures.
+  - **Instance ID Tracking**: Inspects backend `instanceId` during health probes, firing `SERVER_INSTANCE_CHANGED` and alerting the webview if the server daemon process was replaced or restarted out-of-band.
+
+- **Centralized Telemetry Migration (`antigravity.openTelemetrySettings`)**: Modernized telemetry configuration by migrating controls from workspace JSON settings to the centralized Antigravity Account settings interface:
+  - **Settings Deprecation**: Deprecated `antigravity.enableTelemetry` in `package.json` with a direct command pointer (`command:antigravity.openTelemetrySettings`) to the new data-sharing UI.
+  - **One-Time Migration Notice**: Detects legacy configuration in user or workspace `settings.json` and displays an informational prompt explaining that telemetry is now managed under Settings → Account, while honoring existing `false` opt-outs.
+
+### Improvements
+- **Interactive Elicitation Protocols**:
+  - Added rich user interaction schemas in `bridge.js` enabling multi-turn agent clarifications: `ConfirmationRequestSchema`, `ConfirmationResponseSchema`, `MultipleChoiceRequestSchema`, `MultipleChoiceResponseSchema`, `MultiQuestionRequestSchema`, `MultiQuestionResponseSchema`, `ElicitationQuestionSchema`, `ElicitationChoiceSchema`, `UserTimeoutSchema`, and `UserSkippedSchema`.
+
+- **First-Class Agent Tool Pipeline**:
+  - Registered 150+ protobuf schemas in `bridge.js` defining native tool definitions and trajectory execution steps: `FilesystemToolSchema`, `BashToolSchema`, `ManageTaskToolSchema`, `ScheduleToolSchema`, `ComputerUseSchema`, `GoogleMapsSchema`, `FileSearchSchema`, `UrlContextSchema`, and `CodeExecutionSchema`.
+  - Added dedicated call and result step schemas for file operations (`FindFileCallStep`, `ListDirectoryCallStep`, `SearchDirectoryCallStep`, `ViewFileCallStep`, `EditFileCallStep`), image generation (`GenerateImageCallStep`), and skill discovery (`SkillLookupCallStep`).
+
+- **Conversation Search & Chapters**:
+  - Added `SearchConversationsRequestSchema`, `SearchConversationsResponseSchema`, and `TriggerConversationSearchRequestSchema` for webview-to-host conversation indexing.
+  - Introduced `MatchSource` enum (`UNSPECIFIED = 0`, `TITLE = 1`, `USER = 2`, `AGENT = 3`, `WORKSPACE = 4`) and `ConversationChaptersSchema` for organizing conversation trajectories into structured chapters.
+
+- **Enterprise & Cloud Retrieval Configurations**:
+  - Added RAG and search configuration schemas: `RagStoreConfigSchema`, `VertexAISearchConfigSchema`, `ExaAISearchConfigSchema`, and `ParallelAISearchConfigSchema`.
+
+- **Security & Secret Scanner Exclusions**:
+  - Added `secret-detector:ignore` annotations to bundled third-party dependencies (`gaxios`, `whatwg_url`) and internal OAuth token extraction routines.
+
+### Fixes
+- **False-Positive Hang Restarts After Laptop Lid Close**: Fixed an issue where closing and opening a laptop lid or suspending the OS triggered premature server crash notifications by comparing wall-clock drift with process uptime before recording missed heartbeats.
+
+- **Keybinding Interception in Editor & Terminal**: Resolved shortcut collisions where global chat toggle or agent step keybindings captured `alt+enter` or `cmd+l` while typing in the active editor buffer or terminal.
+
+---
+
+### Under the Hood
+*This section documents exact Google3 monorepo changes, schemas, and build revisions.*
+
+- **Core & Lifecycle (`extension/src/cloud/...`)**:
+  - `server_manager.ts`:
+    - Added `autoRecover` configuration handling (`AUTO_RECOVER_CONFIG_KEY`, `DISABLE_AUTO_RECOVER_ENV`, `AUTO_RECOVER_MAX_ATTEMPTS = 3`, `AUTO_RECOVER_WINDOW_MS = 600000ms`, `AUTO_RECOVER_BACKOFF_MS = [1000, 3000, 9000]`).
+    - Added `probeHealth`, `startHeartbeat`, `stopHeartbeat`, `scheduleHeartbeatTick`, `heartbeatTick`, `handleHealthyHeartbeat`, and `handleMissedHeartbeat`.
+    - Added `wasSuspendedSince`, `checkHeartbeatSuspendDrift`, and `markSuspendDetected` (`SUSPEND_DRIFT_THRESHOLD_MS = 15000ms`).
+    - Added `restart(reason)`, `handleUnexpectedExit`, `scheduleRecovery`, `runRecovery`, and `cancelPendingRecovery`.
+    - Added telemetry events: `SERVER_AUTO_RECOVERY_ATTEMPT`, `SERVER_AUTO_RECOVERED`, `SERVER_AUTO_RECOVERY_FAILED`, `SERVER_HANG`, `SERVER_INSTANCE_CHANGED`.
+  - `telemetry.ts`:
+    - Added `AccountTelemetrySetting`, `inspectLegacyTelemetrySetting`, and `maybeNotifyLegacyTelemetrySetting`.
+    - Registered command `antigravity.openTelemetrySettings` opening `TELEMETRY_SETTINGS_SCREEN`.
+    - Added `AntigravityMetadataKey`: `SUSPEND_DETECTED`, `RECOVERY_REASON`, `RECOVERY_ATTEMPT`, `BACKOFF_MS`, `HEARTBEAT_MISSES`.
+
+- **Jetski & Diff Zones (`extension/src/devtools/cider/...`)**:
+  - `inline_diff_manager.ts`:
+    - Added `getFocusedHunkIndex(uri)`, `acceptFocusedHunk(uri)`, and `rejectFocusedHunk(uri)` resolving hunks by active line intersections (`selection.active.line`).
+    - Registered commands `antigravity.inlineDiff.acceptFocusedHunk` and `antigravity.inlineDiff.rejectFocusedHunk`.
+  - `side_by_side_diff_zone_renderer.ts`:
+    - Added `registerSideBySideReviewActions` with commands `antigravity.sideBySide.acceptAll` and `antigravity.sideBySide.rejectAll`.
+    - Added `SIDE_BY_SIDE_REVIEW_PENDING_KEY` context key synchronization across editor tab switches.
+
+- **Protobuf & IPC Schemas (`extension/bridge.js` & `extension/src/blaze-out/`)**:
+  - `cortex_pb.ts` & `iframe_messages.ts`:
+    - Added elicitation schemas: `ConfirmationRequestSchema`, `ConfirmationResponseSchema`, `MultipleChoiceRequestSchema`, `MultipleChoiceResponseSchema`, `MultiQuestionRequestSchema`, `MultiQuestionResponseSchema`, `ElicitationQuestionSchema`, `ElicitationChoiceSchema`, `UserTimeoutSchema`, `UserSkippedSchema`.
+    - Added tool & step schemas: `FilesystemToolSchema`, `BashToolSchema`, `ManageTaskToolSchema`, `ScheduleToolSchema`, `ComputerUseSchema`, `FindFileCallStepSchema`, `EditFileCallStepSchema`, `ViewFileCallStepSchema`, `GenerateImageCallStepSchema`, `SkillLookupCallStepSchema`.
+    - Added search schemas: `SearchConversationsRequestSchema`, `SearchConversationsResponseSchema`, `TriggerConversationSearchRequestSchema`, `ConversationSearchResultSchema`, `MatchSourceSchema`.
+    - Added chapter schemas: `ConversationChaptersSchema`, `ConversationChapterSchema`, `TurnHeaderSchema`, `CascadeTrajectorySummarySchema`.
+
+- **Webview Bridges (`extension/bridge.js`, `extension/loading_bridge.js`)**:
+  - Added `TelemetrySettingChangedRequestSchema` and `TelemetrySettingChangedResponseSchema` for real-time webview setting synchronization.
+  - Synchronized `MatchSource` enum definition (`UNSPECIFIED`, `TITLE`, `USER`, `AGENT`, `WORKSPACE`).
+
+- **Build Metadata (`extension/package.json`)**:
+  - `BUILD_BLAZE_RELEASE`: `release blaze-2026.10.06-3 (mainline @993733428)`
+  - `BUILD_EMBED_LABEL`: `antigravity_vscode_extension_1.9.0_RC00`
+  - `BUILD_HOSTNAME`: `lgbcf19.prod.google.com`
+
+---
+
 ## [v1.8.0] - 2026-10-14
 
 ### Cumulative multi-turn reviews, disk change watchers, and PII redaction

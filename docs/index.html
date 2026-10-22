@@ -1783,7 +1783,10 @@
           <ul class="isMobile">
             <li data-tab-hidden="true" style="display: none;"><a href="#_top" style="display: none;"><span>Overview</span></a></li>
             
-    <li data-tab="extension" ><a href="#rel-ext-1.8.0" class="mobile-toc-link" aria-current="true"><span>v1.8.0</span></a></li>
+    <li data-tab="extension" ><a href="#rel-ext-1.9.0" class="mobile-toc-link" aria-current="true"><span>v1.9.0</span></a></li>
+  
+
+    <li data-tab="extension" ><a href="#rel-ext-1.8.0" class="mobile-toc-link" ><span>v1.8.0</span></a></li>
   
 
     <li data-tab="extension" ><a href="#rel-ext-1.7.0" class="mobile-toc-link" ><span>v1.7.0</span></a></li>
@@ -1842,7 +1845,10 @@
                   <ul id="tocList" class="starlight-toc-list">
                     <li data-tab-hidden="true" style="display: none;"><a href="#_top" style="display: none;"><span>Overview</span></a></li>
                     
-    <li data-tab="extension" ><a href="#rel-ext-1.8.0" class="toc-link" aria-current="true"><span>v1.8.0</span></a></li>
+    <li data-tab="extension" ><a href="#rel-ext-1.9.0" class="toc-link" aria-current="true"><span>v1.9.0</span></a></li>
+  
+
+    <li data-tab="extension" ><a href="#rel-ext-1.8.0" class="toc-link" ><span>v1.8.0</span></a></li>
   
 
     <li data-tab="extension" ><a href="#rel-ext-1.7.0" class="toc-link" ><span>v1.7.0</span></a></li>
@@ -1987,13 +1993,81 @@
         <div id="ext-panel-extension-vscode" class="rn-ext-panel active" role="tabpanel" aria-labelledby="ext-tab-extension-vscode" data-ext-panel="vscode">
           <div class="rn-timeline" id="releaseTimeline-extension">
             
+    <article class="rn-row" id="rel-ext-1.9.0">
+      <div class="rn-version-col">
+        <div class="rn-version-row">
+          <h3 class="rn-version-heading">
+            <a href="#rel-ext-1.9.0" class="rn-version-tag" title="View release 1.9.0">v1.9.0</a>
+          </h3>
+          <span class="rn-latest-tag">Latest</span>
+        </div>
+        <time class="rn-date-text" datetime="2026-10-21">October 21, 2026</time>
+      </div>
+      <div class="rn-card">
+        
+    <div class="rn-card-header">
+      <h3 class="rn-headline">Focused hunk review shortcuts, self-healing backend recovery, and liveness heartbeats</h3>
+      
+    </div>
+  
+        <div class="rn-summary"><p>Review inline diff hunks directly from your keyboard with cursor-focused accept and reject shortcuts, while automatic backend recovery and health heartbeats keep your language server self-healing. This release also introduces sleep-drift detection, centralized telemetry governance, and 150+ interactive elicitation and tool schemas.</p></div>
+        <div class="rn-categories">
+          
+      <details class="rn-accordion" data-release-detail="" data-item-title="Highlights">
+        <summary class="rn-accordion-summary">
+          <span class="rn-cat-title">Highlights<span class="rn-count">(4)</span></span>
+          <svg class="rn-chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <ul class="rn-list">
+          <li class="rn-item"><strong>Cursor-Focused Diff Hunk Keyboard Navigation (<code>alt+enter</code> / <code>alt+shift+enter</code>)</strong>: Streamlined keyboard-driven code review workflows with granular, cursor-targeted diff hunk resolution:<ul class="rn-sublist"><li class="rn-subitem"><strong>Focused Hunk Targeting (<code>acceptFocusedHunk</code> / <code>rejectFocusedHunk</code>)</strong>: Added dedicated commands (<code>antigravity.inlineDiff.acceptFocusedHunk</code> and <code>antigravity.inlineDiff.rejectFocusedHunk</code>) that dynamically resolve only the single diff hunk containing the active editor cursor line (<code>selection.active.line</code>), falling back to the first pending hunk if the cursor is outside active diff zones.</li><li class="rn-subitem"><strong>Inline Diff Shortcuts</strong>: Bound <code>alt+enter</code> to accept the focused hunk and <code>alt+shift+enter</code> to reject the focused hunk whenever an inline diff review is active (<code>editorTextFocus &amp;&amp; !editorReadonly &amp;&amp; antigravity.hasActiveDiff &amp;&amp; !findWidgetVisible</code>).</li><li class="rn-subitem"><strong>Side-by-Side Review Parity</strong>: Added matching <code>antigravity.sideBySide.acceptAll</code> (<code>alt+enter</code>) and <code>antigravity.sideBySide.rejectAll</code> (<code>alt+shift+enter</code>) bindings when reviewing full-file side-by-side diffs.</li><li class="rn-subitem"><strong>Collision Prevention</strong>: Scoped <code>antigravity.toggleChatFocus</code> (<code>!editorTextFocus &amp;&amp; !terminalFocus</code>) and <code>antigravity.dynamic.acceptAgentStep</code> (<code>!editorTextFocus</code>) to prevent hotkey conflicts while typing in the active editor buffer.</li></ul></li><li class="rn-item"><strong>Automatic Backend Recovery with Bounded Backoff (<code>antigravity.autoRecover</code>)</strong>: Introduced self-healing process resilience for the local Antigravity daemon (<code>agy --hub</code>):<ul class="rn-sublist"><li class="rn-subitem"><strong>Automated Restarts</strong>: When enabled, the extension automatically restarts the backend language server if it crashes or terminates unexpectedly mid-session without requiring a manual window reload.</li><li class="rn-subitem"><strong>Bounded Exponential Backoff</strong>: Restarts use escalating backoff intervals (<code>1000ms</code>, <code>3000ms</code>, <code>9000ms</code>) with ±20% randomized jitter, enforcing a maximum budget of 3 recovery attempts within any 10-minute sliding window (<code>AUTO_RECOVER_WINDOW_MS = 600,000ms</code>).</li><li class="rn-subitem"><strong>Graceful Failure State</strong>: If the restart budget is exhausted, the server manager stops recovery attempts, logs <code>SERVER_AUTO_RECOVERY_FAILED</code> telemetry, and surfaces an error card in the chat view with a manual retry action. Can be globally bypassed with the <code>ANTIGRAVITY_DISABLE_AUTO_RECOVER=1</code> environment variable.</li></ul></li><li class="rn-item"><strong>Liveness Probing & System Sleep-Drift Safeguards (<code>antigravity.heartbeatIntervalMs</code>)</strong>: Added continuous health monitoring to detect hung daemon instances and prevent false alarms across system sleep cycles:<ul class="rn-sublist"><li class="rn-subitem"><strong>Active <code>/healthz</code> Heartbeat</strong>: Probes the backend health endpoint on a configurable interval (<code>default: 15000ms</code>, <code>min: 1000ms</code>). Inactivity is automatically throttled by 4x (<code>60000ms</code>) when the VS Code window loses focus.</li><li class="rn-subitem"><strong>Hang Detection</strong>: Tripping 3 consecutive missed probes (<code>HEARTBEAT_MISS_THRESHOLD = 3</code>) marks the backend as hung, logging <code>SERVER_HANG</code> and automatically triggering recovery when <code>autoRecover</code> is enabled.</li><li class="rn-subitem"><strong>Monotonic Sleep-Drift Detection</strong>: Detects clock discrepancies between wall time and monotonic process uptime (<code>SUSPEND_DRIFT_THRESHOLD_MS = 15000ms</code>). Probes missed during macOS or Linux sleep/suspend transitions are recognized as sleep events and ignored rather than treated as backend failures.</li><li class="rn-subitem"><strong>Instance ID Tracking</strong>: Inspects backend <code>instanceId</code> during health probes, firing <code>SERVER_INSTANCE_CHANGED</code> and alerting the webview if the server daemon process was replaced or restarted out-of-band.</li></ul></li><li class="rn-item"><strong>Centralized Telemetry Migration (<code>antigravity.openTelemetrySettings</code>)</strong>: Modernized telemetry configuration by migrating controls from workspace JSON settings to the centralized Antigravity Account settings interface:<ul class="rn-sublist"><li class="rn-subitem"><strong>Settings Deprecation</strong>: Deprecated <code>antigravity.enableTelemetry</code> in <code>package.json</code> with a direct command pointer (<code>command:antigravity.openTelemetrySettings</code>) to the new data-sharing UI.</li><li class="rn-subitem"><strong>One-Time Migration Notice</strong>: Detects legacy configuration in user or workspace <code>settings.json</code> and displays an informational prompt explaining that telemetry is now managed under Settings → Account, while honoring existing <code>false</code> opt-outs.</li></ul></li>
+        </ul>
+      </details>
+    
+
+      <details class="rn-accordion" data-release-detail="" data-item-title="Improvements">
+        <summary class="rn-accordion-summary">
+          <span class="rn-cat-title">Improvements<span class="rn-count">(5)</span></span>
+          <svg class="rn-chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <ul class="rn-list">
+          <li class="rn-item"><strong>Interactive Elicitation Protocols</strong>:<ul class="rn-sublist"><li class="rn-subitem">Added rich user interaction schemas in <code>bridge.js</code> enabling multi-turn agent clarifications: <code>ConfirmationRequestSchema</code>, <code>ConfirmationResponseSchema</code>, <code>MultipleChoiceRequestSchema</code>, <code>MultipleChoiceResponseSchema</code>, <code>MultiQuestionRequestSchema</code>, <code>MultiQuestionResponseSchema</code>, <code>ElicitationQuestionSchema</code>, <code>ElicitationChoiceSchema</code>, <code>UserTimeoutSchema</code>, and <code>UserSkippedSchema</code>.</li></ul></li><li class="rn-item"><strong>First-Class Agent Tool Pipeline</strong>:<ul class="rn-sublist"><li class="rn-subitem">Registered 150+ protobuf schemas in <code>bridge.js</code> defining native tool definitions and trajectory execution steps: <code>FilesystemToolSchema</code>, <code>BashToolSchema</code>, <code>ManageTaskToolSchema</code>, <code>ScheduleToolSchema</code>, <code>ComputerUseSchema</code>, <code>GoogleMapsSchema</code>, <code>FileSearchSchema</code>, <code>UrlContextSchema</code>, and <code>CodeExecutionSchema</code>.</li><li class="rn-subitem">Added dedicated call and result step schemas for file operations (<code>FindFileCallStep</code>, <code>ListDirectoryCallStep</code>, <code>SearchDirectoryCallStep</code>, <code>ViewFileCallStep</code>, <code>EditFileCallStep</code>), image generation (<code>GenerateImageCallStep</code>), and skill discovery (<code>SkillLookupCallStep</code>).</li></ul></li><li class="rn-item"><strong>Conversation Search & Chapters</strong>:<ul class="rn-sublist"><li class="rn-subitem">Added <code>SearchConversationsRequestSchema</code>, <code>SearchConversationsResponseSchema</code>, and <code>TriggerConversationSearchRequestSchema</code> for webview-to-host conversation indexing.</li><li class="rn-subitem">Introduced <code>MatchSource</code> enum (<code>UNSPECIFIED = 0</code>, <code>TITLE = 1</code>, <code>USER = 2</code>, <code>AGENT = 3</code>, <code>WORKSPACE = 4</code>) and <code>ConversationChaptersSchema</code> for organizing conversation trajectories into structured chapters.</li></ul></li><li class="rn-item"><strong>Enterprise & Cloud Retrieval Configurations</strong>:<ul class="rn-sublist"><li class="rn-subitem">Added RAG and search configuration schemas: <code>RagStoreConfigSchema</code>, <code>VertexAISearchConfigSchema</code>, <code>ExaAISearchConfigSchema</code>, and <code>ParallelAISearchConfigSchema</code>.</li></ul></li><li class="rn-item"><strong>Security & Secret Scanner Exclusions</strong>:<ul class="rn-sublist"><li class="rn-subitem">Added <code>secret-detector:ignore</code> annotations to bundled third-party dependencies (<code>gaxios</code>, <code>whatwg_url</code>) and internal OAuth token extraction routines.</li></ul></li>
+        </ul>
+      </details>
+    
+
+      <details class="rn-accordion" data-release-detail="" data-item-title="Fixes">
+        <summary class="rn-accordion-summary">
+          <span class="rn-cat-title">Fixes<span class="rn-count">(2)</span></span>
+          <svg class="rn-chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <ul class="rn-list">
+          <li class="rn-item"><strong>False-Positive Hang Restarts After Laptop Lid Close</strong>: Fixed an issue where closing and opening a laptop lid or suspending the OS triggered premature server crash notifications by comparing wall-clock drift with process uptime before recording missed heartbeats.</li><li class="rn-item"><strong>Keybinding Interception in Editor & Terminal</strong>: Resolved shortcut collisions where global chat toggle or agent step keybindings captured <code>alt+enter</code> or <code>cmd+l</code> while typing in the active editor buffer or terminal.</li>
+        </ul>
+      </details>
+    
+
+      <details class="rn-accordion" data-release-detail="" data-item-title="Under the Hood">
+        <summary class="rn-accordion-summary">
+          <span class="rn-cat-title">Under the Hood<span class="rn-count">(5)</span></span>
+          <svg class="rn-chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <ul class="rn-list">
+          <p class="rn-section-note"><em>This section documents exact Google3 monorepo changes, schemas, and build revisions.</em></p><li class="rn-item"><strong>Core & Lifecycle (<code>extension/src/cloud/...</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem"><code>server_manager.ts</code>:</li><li class="rn-subitem">Added <code>autoRecover</code> configuration handling (<code>AUTO_RECOVER_CONFIG_KEY</code>, <code>DISABLE_AUTO_RECOVER_ENV</code>, <code>AUTO_RECOVER_MAX_ATTEMPTS = 3</code>, <code>AUTO_RECOVER_WINDOW_MS = 600000ms</code>, <code>AUTO_RECOVER_BACKOFF_MS = [1000, 3000, 9000]</code>).</li><li class="rn-subitem">Added <code>probeHealth</code>, <code>startHeartbeat</code>, <code>stopHeartbeat</code>, <code>scheduleHeartbeatTick</code>, <code>heartbeatTick</code>, <code>handleHealthyHeartbeat</code>, and <code>handleMissedHeartbeat</code>.</li><li class="rn-subitem">Added <code>wasSuspendedSince</code>, <code>checkHeartbeatSuspendDrift</code>, and <code>markSuspendDetected</code> (<code>SUSPEND_DRIFT_THRESHOLD_MS = 15000ms</code>).</li><li class="rn-subitem">Added <code>restart(reason)</code>, <code>handleUnexpectedExit</code>, <code>scheduleRecovery</code>, <code>runRecovery</code>, and <code>cancelPendingRecovery</code>.</li><li class="rn-subitem">Added telemetry events: <code>SERVER_AUTO_RECOVERY_ATTEMPT</code>, <code>SERVER_AUTO_RECOVERED</code>, <code>SERVER_AUTO_RECOVERY_FAILED</code>, <code>SERVER_HANG</code>, <code>SERVER_INSTANCE_CHANGED</code>.</li><li class="rn-subitem"><code>telemetry.ts</code>:</li><li class="rn-subitem">Added <code>AccountTelemetrySetting</code>, <code>inspectLegacyTelemetrySetting</code>, and <code>maybeNotifyLegacyTelemetrySetting</code>.</li><li class="rn-subitem">Registered command <code>antigravity.openTelemetrySettings</code> opening <code>TELEMETRY_SETTINGS_SCREEN</code>.</li><li class="rn-subitem">Added <code>AntigravityMetadataKey</code>: <code>SUSPEND_DETECTED</code>, <code>RECOVERY_REASON</code>, <code>RECOVERY_ATTEMPT</code>, <code>BACKOFF_MS</code>, <code>HEARTBEAT_MISSES</code>.</li></ul></li><li class="rn-item"><strong>Jetski & Diff Zones (<code>extension/src/devtools/cider/...</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem"><code>inline_diff_manager.ts</code>:</li><li class="rn-subitem">Added <code>getFocusedHunkIndex(uri)</code>, <code>acceptFocusedHunk(uri)</code>, and <code>rejectFocusedHunk(uri)</code> resolving hunks by active line intersections (<code>selection.active.line</code>).</li><li class="rn-subitem">Registered commands <code>antigravity.inlineDiff.acceptFocusedHunk</code> and <code>antigravity.inlineDiff.rejectFocusedHunk</code>.</li><li class="rn-subitem"><code>side_by_side_diff_zone_renderer.ts</code>:</li><li class="rn-subitem">Added <code>registerSideBySideReviewActions</code> with commands <code>antigravity.sideBySide.acceptAll</code> and <code>antigravity.sideBySide.rejectAll</code>.</li><li class="rn-subitem">Added <code>SIDE_BY_SIDE_REVIEW_PENDING_KEY</code> context key synchronization across editor tab switches.</li></ul></li><li class="rn-item"><strong>Protobuf & IPC Schemas (<code>extension/bridge.js</code> & <code>extension/src/blaze-out/</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem"><code>cortex_pb.ts</code> & <code>iframe_messages.ts</code>:</li><li class="rn-subitem">Added elicitation schemas: <code>ConfirmationRequestSchema</code>, <code>ConfirmationResponseSchema</code>, <code>MultipleChoiceRequestSchema</code>, <code>MultipleChoiceResponseSchema</code>, <code>MultiQuestionRequestSchema</code>, <code>MultiQuestionResponseSchema</code>, <code>ElicitationQuestionSchema</code>, <code>ElicitationChoiceSchema</code>, <code>UserTimeoutSchema</code>, <code>UserSkippedSchema</code>.</li><li class="rn-subitem">Added tool & step schemas: <code>FilesystemToolSchema</code>, <code>BashToolSchema</code>, <code>ManageTaskToolSchema</code>, <code>ScheduleToolSchema</code>, <code>ComputerUseSchema</code>, <code>FindFileCallStepSchema</code>, <code>EditFileCallStepSchema</code>, <code>ViewFileCallStepSchema</code>, <code>GenerateImageCallStepSchema</code>, <code>SkillLookupCallStepSchema</code>.</li><li class="rn-subitem">Added search schemas: <code>SearchConversationsRequestSchema</code>, <code>SearchConversationsResponseSchema</code>, <code>TriggerConversationSearchRequestSchema</code>, <code>ConversationSearchResultSchema</code>, <code>MatchSourceSchema</code>.</li><li class="rn-subitem">Added chapter schemas: <code>ConversationChaptersSchema</code>, <code>ConversationChapterSchema</code>, <code>TurnHeaderSchema</code>, <code>CascadeTrajectorySummarySchema</code>.</li></ul></li><li class="rn-item"><strong>Webview Bridges (<code>extension/bridge.js</code>, <code>extension/loading_bridge.js</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem">Added <code>TelemetrySettingChangedRequestSchema</code> and <code>TelemetrySettingChangedResponseSchema</code> for real-time webview setting synchronization.</li><li class="rn-subitem">Synchronized <code>MatchSource</code> enum definition (<code>UNSPECIFIED</code>, <code>TITLE</code>, <code>USER</code>, <code>AGENT</code>, <code>WORKSPACE</code>).</li></ul></li><li class="rn-item"><strong>Build Metadata (<code>extension/package.json</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem"><code>BUILD_BLAZE_RELEASE</code>: <code>release blaze-2026.10.06-3 (mainline @993733428)</code></li><li class="rn-subitem"><code>BUILD_EMBED_LABEL</code>: <code>antigravity_vscode_extension_1.9.0_RC00</code></li><li class="rn-subitem"><code>BUILD_HOSTNAME</code>: <code>lgbcf19.prod.google.com</code></li></ul></li>
+        </ul>
+      </details>
+    
+        </div>
+      </div>
+    </article>
+  
+
     <article class="rn-row" id="rel-ext-1.8.0">
       <div class="rn-version-col">
         <div class="rn-version-row">
           <h3 class="rn-version-heading">
             <a href="#rel-ext-1.8.0" class="rn-version-tag" title="View release 1.8.0">v1.8.0</a>
           </h3>
-          <span class="rn-latest-tag">Latest</span>
+          
         </div>
         <time class="rn-date-text" datetime="2026-10-14">October 14, 2026</time>
       </div>
