@@ -10,8 +10,8 @@ The goal of this project is to maintain hotfixes for known issues in the Google 
 
 | Patch ID | Name | Upstream Status | Target Scope | Verified Version |
 | :--- | :--- | :--- | :--- | :--- |
-| `terminal_view` | Enable Standalone Terminal for Background Tasks | Active | Webview panel fallback for background task terminal UI | v1.8.0 |
-| `binary_file_preview` | Enable Preview for Binary Files and Images | Active | Universal editor fallback for binary assets in openFile | v1.8.0 |
+| `terminal_view` | Enable Standalone Terminal for Background Tasks | Active | Webview panel fallback for background task terminal UI | v1.9.0 |
+| `binary_file_preview` | Enable Preview for Binary Files and Images | Active | Universal editor fallback for binary assets in openFile | v1.9.0 |
 | `auto_open_priority` | Prioritize autoOpenFiles over skipOpen | Retired / Removed (v1.8.0) | File reveal logic on agent edit events | v1.8.0 |
 | `line_counts` | Accurate Side-by-Side Line Counts | Resolved Upstream (Retired in v1.7.0) | Diff hunk line count calculation in side-by-side mode | v1.7.0 |
 
@@ -23,7 +23,7 @@ The goal of this project is to maintain hotfixes for known issues in the Google 
 
 * **Patch File:** [`patches/terminal_view.js`](patches/terminal_view.js)
 * **Status:** Active (Not resolved upstream)
-* **Target Version:** v1.8.0 (Verified)
+* **Target Version:** v1.9.0 (Verified)
 
 #### Problem Statement
 When a user launches background tasks (such as long-running build commands, watchers, or tests) during an Antigravity agent session, clicking the interactive task card in the chat UI fails to open the terminal stream. The user is unable to view real-time compilation logs, compiler warnings, or execution progress inside VS Code.
@@ -48,7 +48,7 @@ Google either declares `jetski.terminalView` under `contributes.views.panel` in 
 
 * **Patch File:** [`patches/binary_file_preview.js`](patches/binary_file_preview.js)
 * **Status:** Active (Not resolved upstream)
-* **Target Version:** v1.8.0 (Verified)
+* **Target Version:** v1.9.0 (Verified)
 
 #### Problem Statement
 When an agent inspects images, media, or other non-text files during a session, clicking the file pill or preview button in the chat interface throws an error toast:

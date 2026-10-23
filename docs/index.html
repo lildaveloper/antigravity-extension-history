@@ -1816,6 +1816,9 @@
     <li data-tab="extension" ><a href="#rel-ext-1.0.0" class="mobile-toc-link" ><span>v1.0.0</span></a></li>
   
 
+    <li data-tab="patches" style="display: none;"><a href="#rel-patches-1.9.0" class="mobile-toc-link" ><span>v1.9.0</span></a></li>
+  
+
     <li data-tab="patches" style="display: none;"><a href="#rel-patches-1.8.0" class="mobile-toc-link" ><span>v1.8.0</span></a></li>
   
 
@@ -1876,6 +1879,9 @@
   
 
     <li data-tab="extension" ><a href="#rel-ext-1.0.0" class="toc-link" ><span>v1.0.0</span></a></li>
+  
+
+    <li data-tab="patches" style="display: none;"><a href="#rel-patches-1.9.0" class="toc-link" ><span>v1.9.0</span></a></li>
   
 
     <li data-tab="patches" style="display: none;"><a href="#rel-patches-1.8.0" class="toc-link" ><span>v1.8.0</span></a></li>
@@ -2753,13 +2759,50 @@
         <div id="ext-panel-patches-vscode" class="rn-ext-panel active" role="tabpanel" aria-labelledby="ext-tab-patches-vscode" data-ext-panel="vscode">
           <div class="rn-timeline" id="releaseTimeline-patches">
             
+    <article class="rn-row" id="rel-patches-1.9.0">
+      <div class="rn-version-col">
+        <div class="rn-version-row">
+          <h3 class="rn-version-heading">
+            <a href="#rel-patches-1.9.0" class="rn-version-tag" title="View release 1.9.0">v1.9.0</a>
+          </h3>
+          <span class="rn-latest-tag">Latest</span>
+        </div>
+        <time class="rn-date-text" datetime="2026-10-21">October 21, 2026</time>
+      </div>
+      <div class="rn-card">
+        
+    <div class="rn-card-header">
+      <h3 class="rn-headline">Compatibility update and syntax synchronization for Extension v1.9.0</h3>
+      
+    <a href="https://github.com/lildaveloper/antigravity-extension-changelog/tree/main/packages/extension-patches" target="_blank" rel="noopener noreferrer" class="subnav-pill external-link rn-card-action">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
+  
+    </div>
+  
+        <div class="rn-summary"><p>Audited companion hotfixes against Google Antigravity Extension v1.9.0. Both <code>terminal_view</code> and <code>binary_file_preview</code> remain necessary as upstream has not resolved the underlying behaviors; their replacement targets were updated for upstream Closure compiler identifier drift and verified fully compatible.</p></div>
+        <div class="rn-categories">
+          
+      <details class="rn-accordion" data-release-detail="" data-item-title="Active Hotfixes">
+        <summary class="rn-accordion-summary">
+          <span class="rn-cat-title">Active Hotfixes<span class="rn-count">(2)</span></span>
+          <svg class="rn-chevron" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </summary>
+        <ul class="rn-list">
+          <li class="rn-item"><strong>Enable Standalone Terminal for Background Tasks (<code>terminal_view</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem">Code drift update: updated import alias (<code>l</code> → <code>n</code>) across <code>showTerminal</code> and the <code>TerminalPanelProvider</code> editor webview fallback.</li><li class="rn-subitem">Verified compatible with Extension v1.9.0; continues providing the editor tab fallback for live background task streams where <code>jetski.terminalView</code> remains undeclared in VS Code contributes.</li></ul></li><li class="rn-item"><strong>Enable Preview for Binary Files and Images (<code>binary_file_preview</code>)</strong>:<ul class="rn-sublist"><li class="rn-subitem">Code drift update: updated URI and namespace identifiers (<code>l</code> → <code>n</code>, <code>w</code> → <code>v</code>) in the <code>openFile</code> error-handling wrapper.</li><li class="rn-subitem">Verified compatible with Extension v1.9.0; continues falling back to <code>vscode.open</code> so images, media, and binary files preview without error toasts.</li></ul></li>
+        </ul>
+      </details>
+    
+        </div>
+      </div>
+    </article>
+  
+
     <article class="rn-row" id="rel-patches-1.8.0">
       <div class="rn-version-col">
         <div class="rn-version-row">
           <h3 class="rn-version-heading">
             <a href="#rel-patches-1.8.0" class="rn-version-tag" title="View release 1.8.0">v1.8.0</a>
           </h3>
-          <span class="rn-latest-tag">Latest</span>
+          
         </div>
         <time class="rn-date-text" datetime="2026-10-14">October 14, 2026</time>
       </div>

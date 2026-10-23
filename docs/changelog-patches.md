@@ -12,6 +12,23 @@ VS Code
 
 ---
 
+## [v1.9.0] - 2026-10-21
+
+### Compatibility update and syntax synchronization for Extension v1.9.0
+
+Audited companion hotfixes against Google Antigravity Extension v1.9.0. Both `terminal_view` and `binary_file_preview` remain necessary as upstream has not resolved the underlying behaviors; their replacement targets were updated for upstream Closure compiler identifier drift and verified fully compatible.
+
+### Active Hotfixes
+- **Enable Standalone Terminal for Background Tasks (`terminal_view`)**:
+  - Code drift update: updated import alias (`l` → `n`) across `showTerminal` and the `TerminalPanelProvider` editor webview fallback.
+  - Verified compatible with Extension v1.9.0; continues providing the editor tab fallback for live background task streams where `jetski.terminalView` remains undeclared in VS Code contributes.
+
+- **Enable Preview for Binary Files and Images (`binary_file_preview`)**:
+  - Code drift update: updated URI and namespace identifiers (`l` → `n`, `w` → `v`) in the `openFile` error-handling wrapper.
+  - Verified compatible with Extension v1.9.0; continues falling back to `vscode.open` so images, media, and binary files preview without error toasts.
+
+---
+
 ## [v1.8.0] - 2026-10-14
 
 ### Compatibility update and retirement of auto_open_priority for Extension v1.8.0

@@ -4,7 +4,7 @@ const { findExtensionJs, getExtensionVersion } = require('./core/locator');
 const { PatchEngine } = require('./core/engine');
 
 // Target extension version for this patch release
-const TARGET_EXTENSION_VERSION = '1.8.0';
+const TARGET_EXTENSION_VERSION = '1.9.0';
 
 // ANSI color formatting
 const GREEN = '\x1b[32m';
